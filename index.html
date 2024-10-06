@@ -1,14 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Smart Table</title>
+    <title>Keresés név és év alapján</title>
+    <style>
+        /* CSS a keresőmezők és a táblázat formázásához */
+        .search-input, .search-input-year {
+            width: 100%;
+            padding: 5px;
+        }
+
+        .table-sortable th {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
+<table class="table-sortable">
+    <thead>
+        <tr>
+            <th class="shortable">Name</th>
+            <th class="shortable">Start</th>
+            <th>End</th>
+            <th>Years</th>
+        </tr>
+        <tr>
+            <th>
+                <input type="text" class="search-input" placeholder="Name">
+            </th>
+            <th colspan="2">
+                <input type="text" class="search-input-year" placeholder="Year">
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody> 
+        <tr>
+            <td>Szent László</td>
+            <td class="from">1077</td>
+            <td class="to">1095</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>III. András</td>
+            <td class="from">1290</td>
+            <td class="to">1301</td>
+            <td>11</td>
+        </tr>
+        <tr>
+            <td>I. András</td>
+            <td class="from">1046</td>
+            <td class="to">1060</td>
+            <td>14</td>
+        </tr>
+        <tr>
+            <td>Szent István</td>
+            <td class="from">1000</td>
+            <td class="to">1038</td>
+            <td>38</td>
+        </tr>
+        <tr>
+            <td>Aba Sámuel</td>
+            <td class="from">1041</td>
+            <td class="to">1044</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>IV. Kun László</td>
+            <td class="from">1272</td>
+            <td class="to">1290</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>IV. Béla</td>
+            <td class="from">1235</td>
+            <td class="to">1270</td>
+            <td>35</td>
+        </tr>
+        <tr>
+            <td>Könyves Kálmán</td>
+            <td class="from">1095</td>
+            <td class="to">1116</td>
+            <td>21</td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    // Rendezés Name és Start oszlopok szerint
+    document.querySelectorAll('.shortable').forEach(header => {
+        header.addEventListener('click', function() {
+            let table = header.parentElement.parentElement.parentElement;
+            let tbody = table.querySelector('tbody');
+            let rows = Array.from(tbody.querySelectorAll('tr'));
+            let index = Array.from(header.parentElement.children).indexOf(header);
+            let ascending = header.dataset.sortOrder === 'asc';
+            
+            rows.sort((rowA, rowB) => {
+                let cellA = rowA.children[index].innerText;
+                let cellB = rowB.children[index].innerText;
+                return ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+            header.dataset.sortOrder = ascending ? 'desc' : 'asc';
+        });
+    });
     
-    <script src="script.js"></script>
+    // Keresés név alapján és szűrés évszám alapján
+    function filterTable() {
+        let nameFilter = document.querySelector('.search-input').value.toLowerCase();
+        let yearFilter = parseInt(document.querySelector('.search-input-year').value);
+        let rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            let name = row.querySelector('td').innerText.toLowerCase();
+            let start = parseInt(row.querySelector('.from').innerText);
+            let end = parseInt(row.querySelector('.to').innerText);
+            
+            // Ellenőrizzük, hogy mindkét mező üres-e
+            if (nameFilter === '' && isNaN(yearFilter)) {
+                row.style.display = '';
+            } else {
+                // Ellenőrizzük, hogy a név és az évszám feltételek teljesülnek-e
+                let nameMatch = name.includes(nameFilter);
+                let yearMatch = isNaN(yearFilter) || (yearFilter >= start && yearFilter <= end);
+                
+                // Ha bármelyik feltétel nem teljesül, rejtjük el a sort
+                if (nameMatch && yearMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    // Név szerinti keresés
+    document.querySelector('.search-input').addEventListener('input', filterTable);
+    
+    // Év szerinti szűrés
+    document.querySelector('.search-input-year').addEventListener('input', filterTable);
+    </script>
+    
+
 </body>
 </html>

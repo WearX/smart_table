@@ -1,0 +1,9 @@
+/* CSS a keresőmezők és a táblázat formázásához */
+.search-input, .search-input-year {
+    width: 100%;
+    padding: 5px;
+}
+
+.table-sortable th {
+    cursor: pointer;
+}
